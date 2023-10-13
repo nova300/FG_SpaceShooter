@@ -78,7 +78,6 @@ int main(int argumentCount, char * arguments[])
 		
 		if (timer > 1000.0f)
 		{
-			s.Set(16, 16, counter);
 			counter++;
 			timer = 0.0f;
 		}
@@ -87,7 +86,7 @@ int main(int argumentCount, char * arguments[])
 			timer = timer + deltaTime;
 		}
 		
-
+		s.Set((int)(time / 4) % 1024, (int)(time / 4) % 768, counter, time / 2);
 
 		SDL_SetRenderDrawColor(renderer, 0x00, 0xA0, 0xA0, 0xFF);
 		SDL_RenderClear(renderer);
