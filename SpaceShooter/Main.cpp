@@ -1,12 +1,73 @@
 #include "Graphics.h"
+#include "Physics.h"
 #include <stdio.h>
+
+using hlslpp::float2;
 
 bool run;
 
 float deltaTime = 1.0f;
 float time;
 
+bool leftHeld = false;
+bool rightHeld = false;
+bool upHeld = false;
+
 SDL_Window* window;
+
+void handleInput(SDL_Event event)
+{
+	if (event.type == SDL_KEYDOWN)
+	{
+		switch (event.key.keysym.sym)
+		{
+		case SDLK_UP:
+			upHeld = true;
+			break;
+			
+		case SDLK_DOWN:
+			break;
+
+		case SDLK_LEFT:
+			leftHeld = true;
+			break;
+
+		case SDLK_RIGHT:
+			rightHeld = true;
+			break;
+
+		default:
+			break;
+		}
+
+	}
+	if (event.type == SDL_KEYUP)
+	{
+		switch (event.key.keysym.sym)
+		{
+		case SDLK_UP:
+			upHeld = false;
+			break;
+
+		case SDLK_DOWN:
+			break;
+
+		case SDLK_LEFT:
+			leftHeld = false;
+			break;
+
+		case SDLK_RIGHT:
+			rightHeld = false;
+			break;
+
+		default:
+			break;
+		}
+
+	}
+
+
+}
 
 bool init()
 {
@@ -51,8 +112,11 @@ int main(int argumentCount, char * arguments[])
 	}
 
 	Sprite s;
+	VelocityMovement vm;
+	hlslpp::float2 pos = hlslpp::float2(1.0f, 1.0f);
+	double angle = -0.25;
 
-	s.Set(16, 16, 2);
+	//vm.AddVector(hlslpp::float2(0.0002f, 0.0002f));
 
 	int counter = 0;
 	float timer = 0.0f;
@@ -67,11 +131,33 @@ int main(int argumentCount, char * arguments[])
 
 		while (SDL_PollEvent(&e) != 0)
 		{
+			handleInput(e);
 			if (e.type == SDL_QUIT)
 			{
 				run = false;
 			}
 
+		}
+		if (leftHeld)
+		{
+			angle -= 0.001 * deltaTime;
+		}
+		if (rightHeld)
+		{
+			angle += 0.001 * deltaTime;
+		}
+		if (upHeld)
+		{
+
+			float2 fireVec = float2(cos(angle * 6.28), sin(angle * 6.28));
+
+			fireVec = hlslpp::normalize(fireVec);
+
+			fireVec /= 1000;
+
+			fireVec *= (0.005f * deltaTime);
+
+			vm.AddVector(fireVec);
 		}
 
 		//prerender section
@@ -86,7 +172,9 @@ int main(int argumentCount, char * arguments[])
 			timer = timer + deltaTime;
 		}
 		
-		s.Set((int)(time / 4) % 1024, (int)(time / 4) % 768, counter, time / 2);
+		s.Set(pos, angle);
+
+		pos = vm.Update(pos, deltaTime);
 
 		SDL_SetRenderDrawColor(renderer, 0x00, 0xA0, 0xA0, 0xFF);
 		SDL_RenderClear(renderer);

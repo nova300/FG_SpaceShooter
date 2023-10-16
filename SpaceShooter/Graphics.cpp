@@ -11,10 +11,10 @@ int h;
 int hsize;
 int vsize;
 
-Sprite::Sprite(int x, int y)
+Sprite::Sprite(hlslpp::float2 pos, int textureIndex)
 {
 	Sprites.insert(this);
-	this->Set(x, y);
+	this->Set(pos, 0.0f, textureIndex);
 }
 
 Sprite::~Sprite()
@@ -24,13 +24,23 @@ Sprite::~Sprite()
 
 void Sprite::Render()
 {
-	SDL_RenderCopyEx(renderer, texture, &clip, &renderQuad, angle, &center, flip);
+	SDL_RenderCopyEx(renderer, texture, &clip, &renderQuad, ((angle + 0.25) * 6.28) * (180.0 / 3.14), &center, flip);
 }
 
-void Sprite::Set(int x, int y, int textureIndex, double angle, SDL_Point center, SDL_RendererFlip flip)
+void Sprite::Set(hlslpp::float2 pos, double angle, int textureIndex, SDL_Point center, SDL_RendererFlip flip)
 {
-	int hpos = 64 * (int)(textureIndex % hsize);
-	int vpos = 64 * (int)((textureIndex / hsize) % vsize);
+	if (textureIndex != -1)
+	{
+		textureIdx = textureIndex;
+	}
+	int hpos = 64 * (int)(textureIdx % hsize);
+	int vpos = 64 * (int)((textureIdx / hsize) % vsize);
+
+	int x = pos.x * (screenX / 2);
+	int y = pos.y * (screenY / 2);
+
+	//x = x % screenX;
+	//y = y % screenY;
 
 	this->clip = clip = { hpos, vpos, 64, 64};
 	this->renderQuad = { x, y, 64, 64};

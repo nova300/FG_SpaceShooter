@@ -154,6 +154,7 @@
   <ItemGroup>
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Physics.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics.h" />
@@ -248,6 +249,7 @@
     <ClInclude Include="Include\SDL\SDL_version.h" />
     <ClInclude Include="Include\SDL\SDL_video.h" />
     <ClInclude Include="Include\SDL\SDL_vulkan.h" />
+    <ClInclude Include="Physics.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Lib\x64\SDL2.dll" />
