@@ -1,8 +1,10 @@
 #include "Graphics.h"
 #include "Physics.h"
 #include <stdio.h>
+#include <queue>
 
 using hlslpp::float2;
+using hlslpp::float3;
 
 bool run;
 
@@ -12,8 +14,11 @@ float time;
 bool leftHeld = false;
 bool rightHeld = false;
 bool upHeld = false;
+bool spaceHeld = false;
 
 SDL_Window* window;
+
+std::queue<Line> FrameLines;
 
 void handleInput(SDL_Event event)
 {
@@ -25,7 +30,8 @@ void handleInput(SDL_Event event)
 			upHeld = true;
 			break;
 			
-		case SDLK_DOWN:
+		case SDLK_SPACE:
+			spaceHeld = true;
 			break;
 
 		case SDLK_LEFT:
@@ -49,7 +55,8 @@ void handleInput(SDL_Event event)
 			upHeld = false;
 			break;
 
-		case SDLK_DOWN:
+		case SDLK_SPACE:
+			spaceHeld = false;
 			break;
 
 		case SDLK_LEFT:
@@ -112,6 +119,7 @@ int main(int argumentCount, char * arguments[])
 	}
 
 	Sprite s;
+	s.Set(float2(1.0f, 1.0f), 0.0, 0);
 	VelocityMovement vm;
 	hlslpp::float2 pos = hlslpp::float2(1.0f, 1.0f);
 	double angle = -0.25;
@@ -120,6 +128,8 @@ int main(int argumentCount, char * arguments[])
 
 	int counter = 0;
 	float timer = 0.0f;
+	float clearTimer = 0.0f;
+	bool shooting = false;
 	
 	SDL_Event e;
 	run = true;
@@ -159,31 +169,58 @@ int main(int argumentCount, char * arguments[])
 
 			vm.AddVector(fireVec);
 		}
+		if (spaceHeld)
+		{
+			if (!shooting)
+			{
+				timer = 25.0f;
+				shooting = true;
+				FrameLines.emplace();
+				Line* f = &FrameLines.back();
+				float ang = angle + ((rand() % 50) - 25);
+				f->Set(pos, ang);
+			}
+		}
+
 
 		//prerender section
 		
-		if (timer > 1000.0f)
+		if (clearTimer < 0.0f)
 		{
-			counter++;
-			timer = 0.0f;
+			if (!FrameLines.empty())
+			{
+				FrameLines.pop();
+			}
+			clearTimer = 50.0f;
 		}
-		else
+		else if (clearTimer >= 0.0f)
 		{
-			timer = timer + deltaTime;
+			clearTimer = clearTimer - deltaTime;
+		}
+		
+		if (timer < 0.0f && shooting)
+		{
+			if (FrameLines.size() < 3) shooting = false;
+		}
+		else if (timer >= 0.0f && shooting)
+		{
+			timer = timer - deltaTime;
 		}
 		
 		s.Set(pos, angle);
 
 		pos = vm.Update(pos, deltaTime);
 
-		SDL_SetRenderDrawColor(renderer, 0x00, 0xA0, 0xA0, 0xFF);
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
 		SDL_RenderClear(renderer);
 
 		//render section
-		for (Sprite* s : Sprites)
+		for (RenderObject* s : RenderObjects)
 		{
 			s->Render();
 		}
+
+		s.Render();
 
 		SDL_RenderPresent(renderer);
 	}

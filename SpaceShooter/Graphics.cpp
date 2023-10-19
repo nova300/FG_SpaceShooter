@@ -1,6 +1,8 @@
 #include "Graphics.h"
 
-std::set<Sprite*> Sprites;
+using hlslpp::float2;
+
+std::set<RenderObject*> RenderObjects;
 
 SDL_Texture* texture;
 
@@ -11,15 +13,14 @@ int h;
 int hsize;
 int vsize;
 
-Sprite::Sprite(hlslpp::float2 pos, int textureIndex)
+RenderObject::RenderObject(bool addToQueue)
 {
-	Sprites.insert(this);
-	this->Set(pos, 0.0f, textureIndex);
+	RenderObjects.insert(this);
 }
 
-Sprite::~Sprite()
+RenderObject::~RenderObject()
 {
-	Sprites.erase(this);
+	RenderObjects.erase(this);
 }
 
 void Sprite::Render()
@@ -59,7 +60,7 @@ bool LoadSpriteAtlas(const char* path)
 	SDL_Surface* loadedSurface = IMG_Load(path);
 	if (loadedSurface != NULL)
 	{
-		SDL_SetColorKey(loadedSurface, SDL_TRUE, SDL_MapRGB(loadedSurface->format, 0, 0xFF, 0xFF));
+		SDL_SetColorKey(loadedSurface, SDL_TRUE, SDL_MapRGB(loadedSurface->format, 0, 0, 0));
 		newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
 		if (newTexture != NULL)
 		{
@@ -77,4 +78,30 @@ bool LoadSpriteAtlas(const char* path)
 	vsize = (int)(h / 64);
 
 	return newTexture;
+}
+
+void Line::Render()
+{
+	SDL_SetRenderDrawColor(renderer, r, g, b, 0xFF);
+	SDL_RenderDrawLine(renderer, ax, ay, bx, by);
+}
+
+void Line::Set(hlslpp::float2 pos, double angle)
+{
+	ax = pos.x * (screenX / 2) + 32;
+	ay = pos.y * (screenY / 2) + 32;
+	float2 fireVec = float2(cos(angle * 6.28), sin(angle * 6.28));
+
+	fireVec = hlslpp::normalize(fireVec);
+
+	fireVec = fireVec * 3.0f;
+
+	fireVec = pos + fireVec;
+
+	bx = fireVec.x * (screenX / 2) + 32;
+	by = fireVec.y * (screenY / 2) + 32;
+
+	r = rand() % 255;
+	g = rand() % 255;
+	b = rand() % 255;
 }
