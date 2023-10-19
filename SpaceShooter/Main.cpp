@@ -1,5 +1,6 @@
 #include "Graphics.h"
 #include "Physics.h"
+#include "Game.h"
 #include <stdio.h>
 #include <queue>
 
@@ -17,8 +18,6 @@ bool upHeld = false;
 bool spaceHeld = false;
 
 SDL_Window* window;
-
-std::queue<Line> FrameLines;
 
 void handleInput(SDL_Event event)
 {
@@ -118,18 +117,7 @@ int main(int argumentCount, char * arguments[])
 		return EXIT_FAILURE;
 	}
 
-	Sprite s;
-	s.Set(float2(1.0f, 1.0f), 0.0, 0);
-	VelocityMovement vm;
-	hlslpp::float2 pos = hlslpp::float2(1.0f, 1.0f);
-	double angle = -0.25;
-
-	//vm.AddVector(hlslpp::float2(0.0002f, 0.0002f));
-
-	int counter = 0;
-	float timer = 0.0f;
-	float clearTimer = 0.0f;
-	bool shooting = false;
+	PlayerShip player;
 	
 	SDL_Event e;
 	run = true;
@@ -150,66 +138,24 @@ int main(int argumentCount, char * arguments[])
 		}
 		if (leftHeld)
 		{
-			angle -= 0.001 * deltaTime;
+			player.angle -= 0.001 * deltaTime;
 		}
 		if (rightHeld)
 		{
-			angle += 0.001 * deltaTime;
+			player.angle += 0.001 * deltaTime;
 		}
 		if (upHeld)
 		{
-
-			float2 fireVec = float2(cos(angle * 6.28), sin(angle * 6.28));
-
-			fireVec = hlslpp::normalize(fireVec);
-
-			fireVec /= 1000;
-
-			fireVec *= (0.005f * deltaTime);
-
-			vm.AddVector(fireVec);
+			player.Thruster();
 		}
 		if (spaceHeld)
 		{
-			if (!shooting)
-			{
-				timer = 25.0f;
-				shooting = true;
-				FrameLines.emplace();
-				Line* f = &FrameLines.back();
-				float ang = angle + ((rand() % 50) - 25);
-				f->Set(pos, ang);
-			}
+			player.Fire();
 		}
-
 
 		//prerender section
 		
-		if (clearTimer < 0.0f)
-		{
-			if (!FrameLines.empty())
-			{
-				FrameLines.pop();
-			}
-			clearTimer = 50.0f;
-		}
-		else if (clearTimer >= 0.0f)
-		{
-			clearTimer = clearTimer - deltaTime;
-		}
-		
-		if (timer < 0.0f && shooting)
-		{
-			if (FrameLines.size() < 3) shooting = false;
-		}
-		else if (timer >= 0.0f && shooting)
-		{
-			timer = timer - deltaTime;
-		}
-		
-		s.Set(pos, angle);
-
-		pos = vm.Update(pos, deltaTime);
+		player.Update(deltaTime);
 
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
 		SDL_RenderClear(renderer);
@@ -220,7 +166,7 @@ int main(int argumentCount, char * arguments[])
 			s->Render();
 		}
 
-		s.Render();
+		player.sprite.Render();
 
 		SDL_RenderPresent(renderer);
 	}
