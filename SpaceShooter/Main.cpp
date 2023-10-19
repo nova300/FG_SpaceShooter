@@ -17,7 +17,11 @@ bool rightHeld = false;
 bool upHeld = false;
 bool spaceHeld = false;
 
+float display1 = 0.0f;
+
 SDL_Window* window;
+
+TTF_Font* font;
 
 void handleInput(SDL_Event event)
 {
@@ -92,6 +96,19 @@ bool init()
 		ok = false;
 	}
 
+	if (TTF_Init() == -1)
+	{
+		printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
+		ok = false;
+	}
+
+	font = TTF_OpenFont("font.ttf", 28);
+	if (font == NULL)
+	{
+		printf("Failed to load lazy font! SDL_ttf Error: %s\n", TTF_GetError());
+		ok = false;
+	}
+
 	if (ok)
 	{
 		window = SDL_CreateWindow("Space War", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1024, 768, SDL_WindowFlags::SDL_WINDOW_ALLOW_HIGHDPI);
@@ -118,6 +135,11 @@ int main(int argumentCount, char * arguments[])
 	}
 
 	PlayerShip player;
+
+	Enemy enemy;
+
+	Text txt;
+	txt.Set(float2(0.0f, 0.0f));
 	
 	SDL_Event e;
 	run = true;
@@ -154,8 +176,15 @@ int main(int argumentCount, char * arguments[])
 		}
 
 		//prerender section
+
+		int len = snprintf(NULL, 0, "%f", display1);
+		char* result = (char*)malloc(len + 1);
+		snprintf(result, len + 1, "%f", display1);
+		txt.Set(result);
+		free(result);
 		
 		player.Update(deltaTime);
+		enemy.Update(deltaTime);
 
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
 		SDL_RenderClear(renderer);

@@ -5,42 +5,50 @@
 #include <SDL.h>
 #include <hlslpp/hlsl++.h>
 
-enum ColliderChannel
-{
-	CH_PLAYER,
-	CH_ENEMY,
-	CH_PROJECTILE
-};
+class Enemy;
+
+Enemy* PhysicsQueryEnemy(hlslpp::float2 pos, hlslpp::float2 dir);
 
 class Collider
 {
 public:
 
-	Collider(ColliderChannel ch);
-	~Collider();
+	Collider();
 
-	void Set(int x, int y);
+	void Set(hlslpp::float2 pos);
+	void Set(hlslpp::float2 pos, int radius);
 
-private:
-	ColliderChannel channel;
-	int x;
-	int y;
+	hlslpp::float2 position;
+	int radius;
+};
 
+class EnemyCollider : public Collider
+{
+public:
+
+	EnemyCollider();
+	~EnemyCollider();
+
+	void SetPtr(Enemy* e);
+	
+	Enemy* enemy;
 };
 
 class VelocityMovement
 {
 public:
 
-	VelocityMovement(void);
+	VelocityMovement();
 
 	void AddVector(hlslpp::float2 v);
 	void StopMovement(void);
 	hlslpp::float2 Update(hlslpp::float2 pos, float deltaTime);
+	bool friction;
 
 private:
 	hlslpp::float2 velocity;
 
+
 };
 
-extern std::set<Collider*> Colliders;
+extern std::set<EnemyCollider*> Colliders;

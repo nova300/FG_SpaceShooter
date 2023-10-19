@@ -25,3 +25,21 @@ private:
 	bool shooting;
 
 };
+
+
+class Enemy
+{
+public:
+	Enemy(hlslpp::float2 position);
+	Enemy(void);
+	
+	void Update(float deltaTime);
+	void Disable();
+
+private:
+	hlslpp::float2 position;
+	VelocityMovement vm;
+	Sprite sprite;
+	EnemyCollider collider;
+	float timer;
+};
