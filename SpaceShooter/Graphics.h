@@ -9,12 +9,10 @@
 class RenderObject
 {
 public:
-	RenderObject(bool addToQueue = true);
+	RenderObject();
 	~RenderObject();
 
 	virtual void Render() = 0;
-private:
-	bool registered;
 };
 
 class Sprite : RenderObject

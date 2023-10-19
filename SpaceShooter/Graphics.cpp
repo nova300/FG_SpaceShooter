@@ -13,7 +13,7 @@ int h;
 int hsize;
 int vsize;
 
-RenderObject::RenderObject(bool addToQueue)
+RenderObject::RenderObject()
 {
 	RenderObjects.insert(this);
 }
