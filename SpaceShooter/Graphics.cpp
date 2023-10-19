@@ -89,12 +89,12 @@ void Line::Render()
 
 void Line::Set(hlslpp::float2 pos, hlslpp::float2 end)
 {
-	ax = pos.x * (screenX / 2) + 32;
-	ay = pos.y * (screenY / 2) + 32;
+	ax = pos.x * (screenX / 2) + 33;
+	ay = pos.y * (screenY / 2) + 33;
 	
 
-	bx = end.x * (screenX / 2) + 32;
-	by = end.y * (screenY / 2) + 32;
+	bx = end.x * (screenX / 2) + 33;
+	by = end.y * (screenY / 2) + 33;
 
 	r = rand() % 255;
 	g = rand() % 255;

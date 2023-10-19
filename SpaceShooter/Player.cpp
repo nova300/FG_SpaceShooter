@@ -25,9 +25,12 @@ void PlayerShip::Fire()
 		FrameLines.emplace();
 		Line* f = &FrameLines.back();
 
-		float ang = angle + ((rand() % 50) - 25);
 
-		float2 fireVec = float2(cos(angle * 6.28), sin(angle * 6.28));
+
+		float ang = angle;
+		ang += (((rand() % 8) - 4) / 100.0f);
+
+		float2 fireVec = float2(cos(ang * 6.28), sin(ang * 6.28));
 		fireVec = hlslpp::normalize(fireVec);
 
 		Enemy* e = PhysicsQueryEnemy(position, fireVec);
