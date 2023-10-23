@@ -19,6 +19,7 @@ public:
 private:
 	hlslpp::float2 position;
 	VelocityMovement vm;
+	Collider collider;
 
 	float timer ;
 	float clearTimer;
@@ -37,6 +38,7 @@ public:
 	void Disable();
 
 private:
+	void Reset();
 	hlslpp::float2 position;
 	VelocityMovement vm;
 	Sprite sprite;

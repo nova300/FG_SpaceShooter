@@ -5,6 +5,7 @@
 #include <queue>
 
 using hlslpp::float2;
+using hlslpp::float1;
 
 std::queue<Line> FrameLines;
 
@@ -13,6 +14,7 @@ PlayerShip::PlayerShip()
 	position = float2(1.0f, 1.0f);
 	angle = -0.25;
 	sprite.Set(float2(1.0f, 1.0f), 0.0, 0);
+	collider.Set(position, float1(0.03f));
 	shooting = false;
 }
 
@@ -85,6 +87,9 @@ void PlayerShip::Update(float deltaTime)
 	}
 
 	sprite.Set(position, angle);
+	collider.Set(position, vm.velocity);
 
-	position = vm.Update(position, deltaTime);
+	collider.Update();
+
+	position = vm.Update(position, deltaTime, &collider);
 }

@@ -1,6 +1,7 @@
 #include "Game.h"
 
 std::set<EnemyCollider*> EnemyColliders;
+std::set<Collider*> Colliders;
 using hlslpp::float2;
 using hlslpp::float1;
 
@@ -12,7 +13,12 @@ EnemyCollider::EnemyCollider()
 
 Collider::Collider()
 {
-	radius = 32;
+	Colliders.insert(this);
+	radius = 1.0f;
+	CollisionVector.x = 0.0f;
+	CollisionVector.y = 0.0f;
+	CollisionFlag = false;
+	Skip = false;
 }
 
 EnemyCollider::~EnemyCollider()
@@ -20,15 +26,22 @@ EnemyCollider::~EnemyCollider()
 	EnemyColliders.erase(this);
 }
 
-void Collider::Set(float2 pos, int radius)
+Collider::~Collider()
+{
+	Colliders.erase(this);
+}
+
+void Collider::Set(float2 pos, float1 radius)
 {
 	position = pos;
 	this->radius = radius;
+	velocity = float2(0.0f, 0.0f);
 }
 
-void Collider::Set(float2 pos)
+void Collider::Set(float2 pos, float2 vel)
 {
 	position = pos;
+	velocity = vel;
 }
 
 void EnemyCollider::SetPtr(Enemy* e)
@@ -45,6 +58,11 @@ VelocityMovement::VelocityMovement()
 void VelocityMovement::AddVector(float2 v)
 {
 	velocity += v;
+}
+
+void VelocityMovement::StopMovement()
+{
+	velocity = float2(0.0f, 0.0f);
 }
 
 float2 VelocityMovement::Update(float2 pos, float deltaTime)
@@ -99,12 +117,25 @@ float2 VelocityMovement::Update(float2 pos, float deltaTime)
 	return pos + (velocity * deltaTime);
 }
 
+float2 VelocityMovement::Update(float2 pos, float deltaTime, Collider* collider)
+{
+	if (collider->CollisionFlag)
+	{
+		collider->CollisionFlag = false;
+		velocity = -velocity;
+		velocity = velocity + collider->CollisionVector;
+	}
+
+	return this->Update(pos, deltaTime);
+}
+
 Enemy* PhysicsQueryEnemy(hlslpp::float2 pos, hlslpp::float2 dir)
 {
 	Enemy* e = NULL;
 	float bestDot = 0.997f;
 	for (EnemyCollider* c : EnemyColliders)
 	{
+		if (c->Skip) continue;
 		float2 diff = c->position - pos;
 		diff = hlslpp::normalize(diff);
 		float dot = hlslpp::dot(dir, diff);
@@ -117,4 +148,28 @@ Enemy* PhysicsQueryEnemy(hlslpp::float2 pos, hlslpp::float2 dir)
 	}
 	//display1 = bestDot;
 	return e;
+}
+
+void Collider::Update()
+{
+
+	if (CollisionFlag) return; //skip all if vm has not handled collision;
+
+	for (Collider* c : Colliders)
+	{
+		if (c == this) continue;
+		if (c->Skip) continue;
+		float1 distP = hlslpp::distance(c->position, position);
+		float1 distC = c->radius + radius;
+
+		display1 = distP.x;
+
+		if (distC > distP)
+		{
+			CollisionVector = c->velocity;
+			CollisionFlag = true;
+			break;
+		}
+	}
+
 }

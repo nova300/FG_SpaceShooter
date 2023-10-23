@@ -14,12 +14,20 @@ class Collider
 public:
 
 	Collider();
+	~Collider();
 
-	void Set(hlslpp::float2 pos);
-	void Set(hlslpp::float2 pos, int radius);
+	void Set(hlslpp::float2 pos, hlslpp::float2 vel = hlslpp::float2(0.0f, 0.0f));
+	void Set(hlslpp::float2 pos, hlslpp::float1 radius);
+
+	void Update(void);
 
 	hlslpp::float2 position;
-	int radius;
+	hlslpp::float1 radius;
+
+	hlslpp::float2 velocity;
+	hlslpp::float2 CollisionVector;
+	bool CollisionFlag;
+	bool Skip;
 };
 
 class EnemyCollider : public Collider
@@ -43,12 +51,11 @@ public:
 	void AddVector(hlslpp::float2 v);
 	void StopMovement(void);
 	hlslpp::float2 Update(hlslpp::float2 pos, float deltaTime);
+	hlslpp::float2 Update(hlslpp::float2 pos, float deltaTime, Collider* collider);
 	bool friction;
-
-private:
 	hlslpp::float2 velocity;
-
 
 };
 
-extern std::set<EnemyCollider*> Colliders;
+extern std::set<EnemyCollider*> EnemyColliders;
+extern std::set<Collider*> Colliders;
