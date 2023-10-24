@@ -28,7 +28,7 @@ void PlayerShip::ResetPos()
 {
 	vm.StopMovement();
 	position = float2(1.0f, 1.9f);
-	angle = -0.25;
+	angle = -0.225;
 	sprite.Set(position, 0.0, 0);
 	collider.Set(position, float1(0.03f));
 }
@@ -76,6 +76,7 @@ void PlayerShip::Thruster()
 	fireVec *= (0.005f * deltaTime);
 
 	vm.AddVector(fireVec);
+	sprite.Set(1);
 }
 
 void PlayerShip::Update(float deltaTime)
@@ -126,11 +127,11 @@ void PlayerShip::Update(float deltaTime)
 		}
 		else if (deadTimer > (2 * part))
 		{
-			sprite.Set(3);
+			sprite.Set(4);
 		}
 		else if (deadTimer > part)
 		{
-			sprite.Set(4);
+			sprite.Set(5);
 		}
 		else if (deadTimer < part && !sprite.Hide)
 		{

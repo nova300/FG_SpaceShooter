@@ -190,6 +190,10 @@ int main(int argumentCount, char * arguments[])
 		{
 			player.Thruster();
 		}
+		else
+		{
+			player.sprite.Set(0);
+		}
 		if (spaceHeld)
 		{
 			player.Fire();

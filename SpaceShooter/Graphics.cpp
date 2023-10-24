@@ -26,7 +26,7 @@ RenderObject::~RenderObject()
 
 void Sprite::Render()
 {
-	if (!Hide) SDL_RenderCopyEx(renderer, texture, &clip, &renderQuad, ((angle + 0.25) * 6.28) * (180.0 / 3.14), &center, flip);
+	if (!Hide) SDL_RenderCopyEx(renderer, texture, &clip, &renderQuad, ((angle + 0.225) * 6.28) * (180.0 / 3.14), &center, flip);
 }
 
 void Sprite::Set(int textureIndex)
