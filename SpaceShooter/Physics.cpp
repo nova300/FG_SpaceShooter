@@ -2,8 +2,7 @@
 
 std::set<EnemyCollider*> EnemyColliders;
 std::set<Collider*> Colliders;
-using hlslpp::float2;
-using hlslpp::float1;
+using namespace hlslpp;
 
 EnemyCollider::EnemyCollider()
 {
@@ -13,6 +12,7 @@ EnemyCollider::EnemyCollider()
 
 Collider::Collider()
 {
+	colliderType = COL_UNDEFINED;
 	Colliders.insert(this);
 	radius = 1.0f;
 	CollisionVector.x = 0.0f;
@@ -67,7 +67,7 @@ void VelocityMovement::StopMovement()
 
 float2 VelocityMovement::Update(float2 pos, float deltaTime)
 {
-	const float speedlimit = 0.005;
+	const float speedlimit = 0.001;
 	int d = 70;
 	if (velocity.x > speedlimit)
 	{
@@ -121,9 +121,9 @@ float2 VelocityMovement::Update(float2 pos, float deltaTime, Collider* collider)
 {
 	if (collider->CollisionFlag)
 	{
+		velocity = collider->CollisionVector;
+		velocity = velocity - (velocity / 10);
 		collider->CollisionFlag = false;
-		velocity = -velocity;
-		velocity = velocity + collider->CollisionVector;
 	}
 
 	return this->Update(pos, deltaTime);
@@ -132,14 +132,14 @@ float2 VelocityMovement::Update(float2 pos, float deltaTime, Collider* collider)
 Enemy* PhysicsQueryEnemy(hlslpp::float2 pos, hlslpp::float2 dir)
 {
 	Enemy* e = NULL;
-	float bestDot = 0.997f;
+	float bestDot = 0.996f;
 	for (EnemyCollider* c : EnemyColliders)
 	{
 		if (c->Skip) continue;
 		float2 diff = c->position - pos;
 		diff = hlslpp::normalize(diff);
 		float dot = hlslpp::dot(dir, diff);
-		display1 = dot;
+		//display1 = dot;
 		if (dot > bestDot)
 		{
 			bestDot = dot;
@@ -162,12 +162,21 @@ void Collider::Update()
 		float1 distP = hlslpp::distance(c->position, position);
 		float1 distC = c->radius + radius;
 
-		display1 = distP.x;
+		//display1 = distP.x;
 
 		if (distC > distP)
 		{
-			CollisionVector = c->velocity;
+			float1 disO = distC - distP;
+			disO = disO / 100;
+			float2 dir = c->position - position;
+			dir = normalize(dir);
+			dir = dir * disO;
+			float2 vel = -velocity;
+			vel = vel / 2;
+			vel = vel + (c->velocity / 2);
+			CollisionVector = vel - dir;
 			CollisionFlag = true;
+			CollisionType = c->colliderType;
 			break;
 		}
 	}

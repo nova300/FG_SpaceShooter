@@ -29,6 +29,17 @@ void Sprite::Render()
 	if (!Hide) SDL_RenderCopyEx(renderer, texture, &clip, &renderQuad, ((angle + 0.25) * 6.28) * (180.0 / 3.14), &center, flip);
 }
 
+void Sprite::Set(int textureIndex)
+{
+	if (textureIdx != textureIndex)
+	{
+		textureIdx = textureIndex;
+		int hpos = 64 * (int)(textureIdx % hsize);
+		int vpos = 64 * (int)((textureIdx / hsize) % vsize);
+		this->clip = clip = { hpos, vpos, 64, 64 };
+	}
+}
+
 void Sprite::Set(hlslpp::float2 pos, double angle, int textureIndex, SDL_Point center, SDL_RendererFlip flip)
 {
 	if (textureIndex != -1)

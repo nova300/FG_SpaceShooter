@@ -9,6 +9,12 @@ class Enemy;
 
 Enemy* PhysicsQueryEnemy(hlslpp::float2 pos, hlslpp::float2 dir);
 
+enum ColliderType
+{
+	COL_UNDEFINED,
+	COL_ENEMY
+};
+
 class Collider
 {
 public:
@@ -26,8 +32,11 @@ public:
 
 	hlslpp::float2 velocity;
 	hlslpp::float2 CollisionVector;
+	ColliderType CollisionType;
 	bool CollisionFlag;
 	bool Skip;
+
+	ColliderType colliderType;
 };
 
 class EnemyCollider : public Collider

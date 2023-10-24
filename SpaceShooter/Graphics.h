@@ -24,6 +24,7 @@ public:
 	void Render();
 
 	void Set(hlslpp::float2 pos = hlslpp::float2(1.0, 1.0), double angle = 0.0, int textureIndex = -1, SDL_Point center = {32, 32}, SDL_RendererFlip flip = SDL_FLIP_NONE);
+	void Set(int textureIndex);
 
 	int textureIdx;
 
@@ -78,8 +79,6 @@ extern SDL_Renderer *renderer;
 extern SDL_Texture* texture;
 
 extern TTF_Font* font;
-
-extern float display1;
 
 extern bool run;
 

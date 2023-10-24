@@ -9,17 +9,31 @@ using hlslpp::float1;
 
 std::queue<Line> FrameLines;
 
+const float spread = 0.01f;
+
 PlayerShip::PlayerShip()
 {
-	position = float2(1.0f, 1.0f);
-	angle = -0.25;
-	sprite.Set(float2(1.0f, 1.0f), 0.0, 0);
-	collider.Set(position, float1(0.03f));
+	ResetPos();
 	shooting = false;
+	dead = false;
+	score = 0;
+
+	deadDelay = 500;
+	deadTimer = deadDelay;
+}
+
+void PlayerShip::ResetPos()
+{
+	vm.StopMovement();
+	position = float2(1.0f, 1.9f);
+	angle = -0.25;
+	sprite.Set(position, 0.0, 0);
+	collider.Set(position, float1(0.03f));
 }
 
 void PlayerShip::Fire()
 {
+	if (dead) return;
 	if (!shooting)
 	{
 		timer = 25.0f;
@@ -27,10 +41,8 @@ void PlayerShip::Fire()
 		FrameLines.emplace();
 		Line* f = &FrameLines.back();
 
-
-
 		float ang = angle;
-		ang += (((rand() % 8) - 4) / 100.0f);
+		ang += ((((rand() % 200) - 100) / 100.0f) * spread );
 
 		float2 fireVec = float2(cos(ang * 6.28), sin(ang * 6.28));
 		fireVec = hlslpp::normalize(fireVec);
@@ -39,7 +51,8 @@ void PlayerShip::Fire()
 
 		if (e != NULL)
 		{
-			e->Disable();
+			e->Destroy();
+			score += 200;
 		}
 
 
@@ -51,6 +64,7 @@ void PlayerShip::Fire()
 
 void PlayerShip::Thruster()
 {
+	if (dead) return;
 	float2 fireVec = float2(cos(angle * 6.28), sin(angle * 6.28));
 
 	fireVec = hlslpp::normalize(fireVec);
@@ -86,10 +100,59 @@ void PlayerShip::Update(float deltaTime)
 		timer = timer - deltaTime;
 	}
 
+	if (scoreDisplay != score)
+	{
+		scoreDisplay = scoreDisplay + (((score - scoreDisplay) / 2) * (deltaTime / 100));
+		if ((score - scoreDisplay) < 20) scoreDisplay = score;
+	}
+
+	if (dead)
+	{
+		deadTimer = deadTimer - deltaTime;
+
+		float part = deadDelay / 3.0f;
+
+		bool ret = true;
+
+		if (deadTimer < 0.0f)
+		{
+			deadTimer = deadDelay;
+			ret = false;
+			dead = false;
+			sprite.Hide = false;
+			collider.Skip = false;
+		}
+		else if (deadTimer > (2 * part))
+		{
+			sprite.Set(3);
+		}
+		else if (deadTimer > part)
+		{
+			sprite.Set(4);
+		}
+		else if (deadTimer < part && !sprite.Hide)
+		{
+			sprite.Hide = true;
+			sprite.Set(0);
+			ResetPos();
+			nuke = true;
+		}
+
+
+		if (ret) return;
+	}
+
+
 	sprite.Set(position, angle);
 	collider.Set(position, vm.velocity);
-
 	collider.Update();
+
+	if (collider.CollisionFlag && collider.CollisionType == COL_ENEMY)
+	{
+		dead = true;
+		collider.Skip = true;
+		collider.CollisionFlag = false;
+	}
 
 	position = vm.Update(position, deltaTime, &collider);
 }

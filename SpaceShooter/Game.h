@@ -2,6 +2,10 @@
 #include "Graphics.h"
 #include "Physics.h"
 
+extern int scoreDisplay;
+extern int finalScore;
+extern bool nuke;
+
 class PlayerShip
 {
 public:
@@ -12,6 +16,8 @@ public:
 	void Thruster();
 
 	void Fire();
+
+	void ResetPos();
 
 	double angle;
 	Sprite sprite;
@@ -24,6 +30,12 @@ private:
 	float timer ;
 	float clearTimer;
 	bool shooting;
+	int score;
+	bool dead;
+
+	float deadTimer;
+	int deadDelay;
+
 
 };
 
@@ -34,8 +46,8 @@ public:
 	Enemy(hlslpp::float2 position);
 	Enemy(void);
 	
-	void Update(float deltaTime);
-	void Disable();
+	int Update(float deltaTime);
+	void Destroy();
 
 private:
 	void Reset();
@@ -43,5 +55,7 @@ private:
 	VelocityMovement vm;
 	Sprite sprite;
 	EnemyCollider collider;
+	bool Destroyed;
 	float timer;
+	int delay;
 };

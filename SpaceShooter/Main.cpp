@@ -17,7 +17,10 @@ bool rightHeld = false;
 bool upHeld = false;
 bool spaceHeld = false;
 
-float display1 = 0.0f;
+int scoreDisplay = 0;
+int finalScore = 0;
+
+bool nuke = false;
 
 SDL_Window* window;
 
@@ -136,7 +139,9 @@ int main(int argumentCount, char * arguments[])
 
 	PlayerShip player;
 
-	Enemy enemy;
+	std::vector<Enemy*> enemies;
+	float enemyTimer = 0.0f;
+	float enemyCountdown = 1000.0f;
 
 	Text txt;
 	txt.Set(float2(0.0f, 0.0f));
@@ -160,11 +165,11 @@ int main(int argumentCount, char * arguments[])
 		}
 		if (leftHeld)
 		{
-			player.angle -= 0.001 * deltaTime;
+			player.angle -= 0.0005 * deltaTime;
 		}
 		if (rightHeld)
 		{
-			player.angle += 0.001 * deltaTime;
+			player.angle += 0.0005 * deltaTime;
 		}
 		if (upHeld)
 		{
@@ -177,14 +182,42 @@ int main(int argumentCount, char * arguments[])
 
 		//prerender section
 
-		int len = snprintf(NULL, 0, "%f", display1);
+		if (enemyTimer < 0.0f)
+		{
+			enemies.push_back(new Enemy());
+			enemyTimer = enemyCountdown;
+			if (enemyCountdown > 250.0f)
+			{
+				enemyCountdown = enemyCountdown - 5.0f;
+			}
+		}
+		else if (enemyTimer >= 0.0f)
+		{
+			enemyTimer = enemyTimer - deltaTime;
+		}
+
+		int len = snprintf(NULL, 0, "SCORE: %010d %f", scoreDisplay, enemyCountdown);
 		char* result = (char*)malloc(len + 1);
-		snprintf(result, len + 1, "%f", display1);
+		snprintf(result, len + 1, "SCORE: %010d %f", scoreDisplay, enemyCountdown);
 		txt.Set(result);
 		free(result);
 		
+		std::vector<int> killIdxs;
 		player.Update(deltaTime);
-		enemy.Update(deltaTime);
+		for (int i = 0; i < enemies.size(); i++)
+		{
+			if (enemies[i]->Update(deltaTime))
+			{
+				killIdxs.push_back(i);
+			}
+		}
+
+		for (int i = killIdxs.size() - 1; i >= 0; i--)
+		{
+			delete(enemies[killIdxs[i]]);
+			enemies.erase(enemies.begin() + killIdxs[i]);
+		}
+
 
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
 		SDL_RenderClear(renderer);
@@ -198,6 +231,15 @@ int main(int argumentCount, char * arguments[])
 		player.sprite.Render();
 
 		SDL_RenderPresent(renderer);
+
+		if (nuke)
+		{
+			nuke = false;
+			for (int i = 0; i < enemies.size(); i++)
+			{
+				enemies[i]->Destroy();
+			}
+		}
 	}
 
 	
