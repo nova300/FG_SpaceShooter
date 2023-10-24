@@ -20,6 +20,8 @@ bool spaceHeld = false;
 int scoreDisplay = 0;
 int finalScore = 0;
 
+unsigned int gameTick = 0;
+
 bool nuke = false;
 
 SDL_Window* window;
@@ -143,6 +145,9 @@ int main(int argumentCount, char * arguments[])
 	float enemyTimer = 0.0f;
 	float enemyCountdown = 1000.0f;
 
+	const float tickSpeed = 200.0f;
+	float tickTimer = tickSpeed;
+
 	Text txt;
 	txt.Set(float2(0.0f, 0.0f));
 	
@@ -153,6 +158,16 @@ int main(int argumentCount, char * arguments[])
 		deltaTime = SDL_GetTicks() - time;
 		if (deltaTime > 250) deltaTime = 250;
 		time = SDL_GetTicks();
+
+		if (tickTimer < 0.0f)
+		{
+			gameTick++;
+			tickTimer = tickSpeed;
+		}
+		else
+		{
+			tickTimer = tickTimer - deltaTime;
+		}
 
 		while (SDL_PollEvent(&e) != 0)
 		{
@@ -196,9 +211,9 @@ int main(int argumentCount, char * arguments[])
 			enemyTimer = enemyTimer - deltaTime;
 		}
 
-		int len = snprintf(NULL, 0, "SCORE: %010d %f", scoreDisplay, enemyCountdown);
+		int len = snprintf(NULL, 0, "SCORE: %06d %f", scoreDisplay, enemyCountdown);
 		char* result = (char*)malloc(len + 1);
-		snprintf(result, len + 1, "SCORE: %010d %f", scoreDisplay, enemyCountdown);
+		snprintf(result, len + 1, "SCORE: %06d %f", scoreDisplay, enemyCountdown);
 		txt.Set(result);
 		free(result);
 		

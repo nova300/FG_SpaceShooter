@@ -5,6 +5,7 @@
 extern int scoreDisplay;
 extern int finalScore;
 extern bool nuke;
+extern unsigned int gameTick;
 
 class PlayerShip
 {
@@ -18,6 +19,8 @@ public:
 	void Fire();
 
 	void ResetPos();
+
+	static hlslpp::float2 Position;
 
 	double angle;
 	Sprite sprite;
@@ -58,4 +61,5 @@ private:
 	bool Destroyed;
 	float timer;
 	int delay;
+	int tickOffset;
 };

@@ -11,6 +11,8 @@ std::queue<Line> FrameLines;
 
 const float spread = 0.01f;
 
+float2 PlayerShip::Position;
+
 PlayerShip::PlayerShip()
 {
 	ResetPos();
@@ -155,4 +157,5 @@ void PlayerShip::Update(float deltaTime)
 	}
 
 	position = vm.Update(position, deltaTime, &collider);
+	Position = position;
 }

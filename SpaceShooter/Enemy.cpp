@@ -16,6 +16,8 @@ void Enemy::Reset()
 	delay = rand() % 500;
 	timer = delay;
 
+	tickOffset = rand() % 10;
+
 	float x, y;
 	y = 0.0f;
 	x = (rand() % 200);
@@ -62,6 +64,20 @@ int Enemy::Update(float deltaTime)
 		}
 
 		return 0;
+	}
+
+	if ((gameTick + tickOffset) % 10 == 0)
+	{
+		sprite.Set(5);
+		float2 moveVector = PlayerShip::Position - position;
+		moveVector = hlslpp::normalize(moveVector);
+		moveVector *= (0.000001f * deltaTime);
+		vm.AddVector(moveVector);
+	}
+	else
+	{
+		if ((gameTick + tickOffset) % 10 == 1) tickOffset = rand() % 10;
+		sprite.Set(2);
 	}
 
 	sprite.Set(position);
