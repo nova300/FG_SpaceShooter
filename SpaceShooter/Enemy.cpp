@@ -6,6 +6,7 @@ using hlslpp::float1;
 Enemy::Enemy(void)
 {
 	Destroyed = false;
+	collider = -1;
 	Reset();
 }
 
@@ -37,15 +38,21 @@ void Enemy::Reset()
 
 	sprite.Set(position, 0.0, 2);
 
-	collider.SetPtr(this);
-	collider.colliderType = COL_ENEMY;
-	collider.Set(position, float1(0.03f));
+	Collider* col = GetCollider(collider);
+	if (col == NULL)
+	{
+		collider = GetNewCollider();
+		col = GetCollider(collider);
+	}
+
+	col->Set(this);
+	col->Set(position, float1(0.03f));
 }
 
 void Enemy::Destroy()
 {
 	Destroyed = true;
-	collider.Skip = true;
+	GetCollider(collider)->Free = true;
 	//sprite.Hide = true;
 }
 
@@ -86,10 +93,15 @@ int Enemy::Update(float deltaTime)
 
 	sprite.Set(position, angle - 0.225);
 
-	collider.Set(position, vm.velocity);
-	collider.Update();
 
-	position = vm.Update(position, deltaTime, &collider);
+	Collider* col = GetCollider(collider);
+	if (col != NULL)
+	{
+		position = vm.Update(position, deltaTime, col);
+		col->Set(position, vm.velocity);
+	}
+
+
 
 	return 0;
 }

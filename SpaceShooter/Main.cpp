@@ -230,6 +230,7 @@ int main(int argumentCount, char * arguments[])
 			free(result);
 		}
 
+		Collider::UpdateColliders();
 		
 		std::vector<int> killIdxs;
 		player.Update(deltaTime);
@@ -269,6 +270,8 @@ int main(int argumentCount, char * arguments[])
 				enemies[i]->Destroy();
 			}
 		}
+
+		
 	}
 
 	

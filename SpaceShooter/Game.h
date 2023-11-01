@@ -28,7 +28,7 @@ public:
 private:
 	hlslpp::float2 position;
 	VelocityMovement vm;
-	Collider collider;
+	int collider;
 
 	float timer ;
 	float clearTimer;
@@ -58,7 +58,7 @@ private:
 	VelocityMovement vm;
 	Sprite sprite;
 	float angle;
-	EnemyCollider collider;
+	int collider;
 	bool Destroyed;
 	float timer;
 	int delay;

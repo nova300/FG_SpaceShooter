@@ -15,6 +15,7 @@ float2 PlayerShip::Position;
 
 PlayerShip::PlayerShip()
 {
+	collider = GetNewCollider();
 	ResetPos();
 	shooting = false;
 	dead = false;
@@ -30,7 +31,12 @@ void PlayerShip::ResetPos()
 	position = float2(1.0f, 1.9f);
 	angle = -0.225;
 	sprite.Set(position, 0.0, 0);
-	collider.Set(position, float1(0.03f));
+
+	Collider* col = GetCollider(collider);
+	if (col != NULL)
+	{
+		col->Set(position, float1(0.03f));
+	}
 }
 
 void PlayerShip::Fire()
@@ -123,7 +129,12 @@ void PlayerShip::Update(float deltaTime)
 			ret = false;
 			dead = false;
 			sprite.Hide = false;
-			collider.Skip = false;
+			Collider* col = GetCollider(collider);
+			if (col != NULL)
+			{
+				col->Skip = false;
+			}
+			
 		}
 		else if (deadTimer > (2 * part))
 		{
@@ -147,16 +158,20 @@ void PlayerShip::Update(float deltaTime)
 
 
 	sprite.Set(position, angle);
-	collider.Set(position, vm.velocity);
-	collider.Update();
 
-	if (collider.CollisionFlag && collider.CollisionType == COL_ENEMY)
+	Collider* col = GetCollider(collider);
+	if (col != NULL)
 	{
-		dead = true;
-		collider.Skip = true;
-		collider.CollisionFlag = false;
+		if (col->CollisionFlag && col->CollisionType == COL_ENEMY)
+		{
+			//dead = true;
+			//col->Skip = true;
+			//col->CollisionFlag = false;
+		}
+
+		position = vm.Update(position, deltaTime, col);
+		col->Set(position, vm.velocity);
 	}
 
-	position = vm.Update(position, deltaTime, &collider);
 	Position = position;
 }
