@@ -18,6 +18,7 @@ bool upHeld = false;
 bool spaceHeld = false;
 
 int scoreDisplay = 0;
+int scoreRendered = 0;
 int finalScore = 0;
 
 unsigned int gameTick = 0;
@@ -215,11 +216,17 @@ int main(int argumentCount, char * arguments[])
 			enemyTimer = enemyTimer - deltaTime;
 		}
 
-		int len = snprintf(NULL, 0, "SCORE: %06d %f", scoreDisplay, enemyCountdown);
-		char* result = (char*)malloc(len + 1);
-		snprintf(result, len + 1, "SCORE: %06d %f", scoreDisplay, enemyCountdown);
-		txt.Set(result);
-		free(result);
+
+		if (scoreDisplay != scoreRendered)	// only update score if onscreen is different from actual
+		{
+			int len = snprintf(NULL, 0, "SCORE: %06d %f", scoreDisplay, enemyCountdown);
+			char* result = (char*)malloc(len + 1);
+			snprintf(result, len + 1, "SCORE: %06d %f", scoreDisplay, enemyCountdown);
+			txt.Set(result);
+			scoreRendered = scoreDisplay;
+			free(result);
+		}
+
 		
 		std::vector<int> killIdxs;
 		player.Update(deltaTime);
