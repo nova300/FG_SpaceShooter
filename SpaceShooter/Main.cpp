@@ -140,6 +140,7 @@ int main(int argumentCount, char * arguments[])
 		return EXIT_FAILURE;
 	}
 
+	// most objects stack allocated here
 	PlayerShip player;
 
 	std::vector<Enemy*> enemies;
@@ -149,7 +150,7 @@ int main(int argumentCount, char * arguments[])
 	const float tickSpeed = 200.0f;
 	float tickTimer = tickSpeed;
 
-	Text txt;
+	Text txt;	// text render object
 	txt.Set(float2(0.0f, 0.0f));
 	
 	SDL_Event e;
@@ -160,6 +161,7 @@ int main(int argumentCount, char * arguments[])
 		if (deltaTime > 250) deltaTime = 250;
 		time = SDL_GetTicks();
 
+		// increment tick counter if last tick was longer ago than tickspeed and reset timer
 		if (tickTimer < 0.0f)
 		{
 			gameTick++;
@@ -170,6 +172,7 @@ int main(int argumentCount, char * arguments[])
 			tickTimer = tickTimer - deltaTime;
 		}
 
+		// handle inputs and events
 		while (SDL_PollEvent(&e) != 0)
 		{
 			handleInput(e);
@@ -202,7 +205,7 @@ int main(int argumentCount, char * arguments[])
 
 		//prerender section
 
-		if (enemyTimer < 0.0f)
+		if (enemyTimer < 0.0f)	// spawning of new enemies on timer
 		{
 			enemies.push_back(new Enemy());
 			enemyTimer = enemyCountdown;
@@ -230,7 +233,7 @@ int main(int argumentCount, char * arguments[])
 		
 		std::vector<int> killIdxs;
 		player.Update(deltaTime);
-		for (int i = 0; i < enemies.size(); i++)
+		for (int i = 0; i < enemies.size(); i++) // update enemies, enemy returns true if it wants to get deleted
 		{
 			if (enemies[i]->Update(deltaTime))
 			{
@@ -238,7 +241,7 @@ int main(int argumentCount, char * arguments[])
 			}
 		}
 
-		for (int i = killIdxs.size() - 1; i >= 0; i--)
+		for (int i = killIdxs.size() - 1; i >= 0; i--) // kill enemies that are on the kill list
 		{
 			delete(enemies[killIdxs[i]]);
 			enemies.erase(enemies.begin() + killIdxs[i]);
@@ -249,16 +252,16 @@ int main(int argumentCount, char * arguments[])
 		SDL_RenderClear(renderer);
 
 		//render section
-		for (RenderObject* s : RenderObjects)
+		for (RenderObject* s : RenderObjects)	// draw all objects
 		{
 			s->Render();
 		}
 
-		player.sprite.Render();
+		player.sprite.Render(); // hack to always render player on top
 
 		SDL_RenderPresent(renderer);
 
-		if (nuke)
+		if (nuke)	// if we want to kill all enemies (used when player dies)
 		{
 			nuke = false;
 			for (int i = 0; i < enemies.size(); i++)
