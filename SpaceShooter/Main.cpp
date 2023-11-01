@@ -18,7 +18,7 @@ bool upHeld = false;
 bool spaceHeld = false;
 
 int scoreDisplay = 0;
-int scoreRendered = 0;
+int scoreRendered = -1;
 int finalScore = 0;
 
 unsigned int gameTick = 0;
@@ -222,9 +222,9 @@ int main(int argumentCount, char * arguments[])
 
 		if (scoreDisplay != scoreRendered)	// only update score if onscreen is different from actual
 		{
-			int len = snprintf(NULL, 0, "SCORE: %06d %f", scoreDisplay, enemyCountdown);
+			int len = snprintf(NULL, 0, "SCORE: %06d", scoreDisplay);
 			char* result = (char*)malloc(len + 1);
-			snprintf(result, len + 1, "SCORE: %06d %f", scoreDisplay, enemyCountdown);
+			snprintf(result, len + 1, "SCORE: %06d", scoreDisplay);
 			txt.Set(result);
 			scoreRendered = scoreDisplay;
 			free(result);
