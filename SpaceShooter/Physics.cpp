@@ -219,14 +219,15 @@ void Collider::UpdateColliders() //optimized update
 			if (far == near) continue;
 			if (far->Skip) continue;
 			if (far->CollisionFlag) continue;
-			float1 distP = hlslpp::distance(far->position, near->position);
-			float1 distC = far->radius + near->radius;
+			float2 dist = far->position - near->position;
+			float1 distP = (dist.x * dist.x) + (dist.y * dist.y);
+			float1 distC = (far->radius + near->radius) * (far->radius + near->radius);
 
 			//display1 = distP.x;
 
 			if (distC > distP)
 			{
-				float1 disO = distC - distP;
+				float1 disO = sqrt(distC) - sqrt(distP);
 				disO = disO / 100;
 				float2 dir = far->position - near->position;
 				dir = normalize(dir);
