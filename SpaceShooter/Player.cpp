@@ -164,9 +164,9 @@ void PlayerShip::Update(float deltaTime)
 	{
 		if (col->CollisionFlag && col->CollisionType == COL_ENEMY)
 		{
-			//dead = true;
-			//col->Skip = true;
-			//col->CollisionFlag = false;
+			dead = true;
+			col->Skip = true;
+			col->CollisionFlag = false;
 		}
 
 		position = vm.Update(position, deltaTime, col);

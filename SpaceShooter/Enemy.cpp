@@ -47,12 +47,13 @@ void Enemy::Reset()
 
 	col->Set(this);
 	col->Set(position, float1(0.03f));
+	col->Skip = false;
 }
 
 void Enemy::Destroy()
 {
 	Destroyed = true;
-	GetCollider(collider)->Free = true;
+	GetCollider(collider)->Skip = true;
 	//sprite.Hide = true;
 }
 
